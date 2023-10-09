@@ -1,0 +1,66 @@
+---
+title: "TREO"
+author: "EOL"
+date: "2023-10-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+```{r}
+pacman::p_load(readr,ggplot2, dplyr)
+```
+
+```{r}
+df <- read.csv("dataset_manual.csv", sep=";")
+```
+
+```{r}
+colnames(df)
+```
+
+```{r}
+df$Forsanger_koen <- gsub("Ma", "M", df$Forsanger_koen)
+```
+
+```{r}
+df_filtered <- df %>%
+  filter(!is.na(Forsanger_koen) & Forsanger_koen != "")
+```
+
+```{r}
+# plot average value of the column "Stjerner" grouped on "Forsanger_koen"
+ggplot(df_filtered, aes(x = Forsanger_koen, y = Stjerner)) +
+  geom_bar(stat = "summary", fun = "mean", fill = "blue") +
+  labs(x = "Forsanger_koen", y = "Average Stjerner") +
+  theme_minimal()
+```
+
+```{r}
+## solist only
+df_filtered_solist <- subset(df_filtered, Solist == 1)
+```
+
+```{r}
+# plot average value of the column "Stjerner" grouped on "Forsanger_koen"
+custom_palette <- c("#FFC0CB", "#FF69B4")
+
+ggplot(df_filtered_solist, aes(x = Forsanger_koen, y = Stjerner, fill = Forsanger_koen)) +
+  geom_bar(stat = "summary", fun = "mean") +
+  scale_fill_manual(values = custom_palette) +
+  labs(x = "Forsanger_koen", y = "Average Stjerner") +
+  theme_minimal()
+
+```
+
+```{r}
+# Perform a two-sample t-test
+t_test_result <- t.test(Stjerner ~ Forsanger_koen, data = df_filtered_solist)
+
+# Print the t-test result
+print(t_test_result)
+```
+
